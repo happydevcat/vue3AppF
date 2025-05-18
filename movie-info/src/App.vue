@@ -1,33 +1,30 @@
 <template>
+  <div>
+  <Navbar />
+  <SearchBar :movieData="copyMovieData" @searchMovie="searchMovie($event)"/>
+  <button @click="showAllMobie">전체보기</button>
+  <Modal :movieData="movieData" :isModal="isModal" :selectMovie="selectMovie" @closeModal="isModal=false"/>
+  <Event  :text="text[eventTextIndex]"/>
   <h1>영화정보 </h1>
-  <div v-for="(movie,iLoop) in movieData" :key="iLoop" clas="item">
+  <Movies :movieData="copyMovieData" 
+  @openModal="isModal=true; selectMovie=$event"
+  @increseLike="increseLike($event)"
+  />
+</div>
 
-    <div class="info">
-      <h3 class="bg-yello" :style="movie.textRed">{{movie.title}} </h3>
-     <figure>
-      <img :src="`/assets/${movie.title}.jpg`" :alt="movie.title">
-    </figure>
+  
 
-      <h3>{{movie.year}} </h3>
-      <h3>{{movie.category}} </h3>
-      <button @:click="increseLike(iLoop)">좋아요</button> <span>{{ movie.like }}</span>
-      <br/><button @click="isModal=true; selectMovie= iLoop">상세보기</button>
-    </div>
-  </div>
-
-  <div class="modal" v-if="isModal">
-    <div class="inner">
-      <h3>{{movieData[selectMovie].title}}</h3>
-      <p>영화 상세정보</p>
-      <button @click="isModal=false">닫기</button>
-    </div>
-  </div>
 
 </template>
 
 <script>
 
   import movieData from './assets/movies';
+  import NavbarComponent from './components/NavbarComponent.vue';
+  import ModalComponent from './components/ModalComponent.vue';
+  import MovieComponent from './components/MovieComponent.vue';
+  import EventComponent from './components/EventComponent.vue';
+  import SearchBar from './components/SearchBar.vue';
   console.log(movieData);
 
   export default{
@@ -35,20 +32,66 @@
     data(){
       return {
         isModal: false,
-        movieData: movieData,
-        selectMovie: 0
+        movieData: movieData, //원본
+        copyMovieData:[...movieData], // 구조분해 사본 
+        selectMovie: 0,
+        text: ["NEPLIX 재미있어 !!!!!!"
+              ,"쿠팡플레이!"
+              ,"디지니!!!!"
+              ,"HBO 젬나지"
+              ],
+        eventTextIndex:0,    
+        interval: null,  
       }
 
     },
 
     methods: {
       increseLike(index){
-        this.movieData[index].like +=1;
+        //this.movieData[index].like +=1;
+        this.movieData.find(movie => {
+            if(movie.id == index){
+              movie.like +=1;
+            }
+
+        })
+      },
+      searchMovie(serchTitle){
+        this.copyMovieData  = this.movieData.filter(movie =>{
+          return movie.title.includes(serchTitle);
+        })
+      },
+      showAllMobie(){
+        this.copyMovieData = [...movieData];
+
       }
       
     },
 
-    
+    components:{
+      Navbar: NavbarComponent,
+      Event: EventComponent,
+      Modal: ModalComponent,
+      Movies: MovieComponent,
+      SearchBar: SearchBar,
+      
+    } ,
+    mounted() {
+      console.log('mounted')     
+      this.interval = setInterval(()=>{
+        if(this.eventTextIndex == this.text.length-1){
+          this.eventTextIndex =0;
+        }else{
+        this.eventTextIndex +=1;
+        }
+      },3000); 
+    },
+
+    unmounted() {
+      console.log('unmounted');     
+      clearInterval(this.interval);
+
+    },
 
   }
 </script>
