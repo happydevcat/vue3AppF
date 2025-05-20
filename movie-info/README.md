@@ -4,6 +4,11 @@
 - https://www.udemy.com/course/vuejs-3-f/?couponCode=CP130525 
 
 ## Project setup
+
+#CLI 버전 업그레이드
+npm install @vue/cli-service@latest --save-dev
+npm install vue-loader@latest --save-dev
+
 ```
 npm install
 ```
